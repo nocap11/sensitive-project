@@ -8,11 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const confidenceBar = document.getElementById('confidenceBar');
     const confidenceText = document.getElementById('confidenceText');
     const reasonText = document.getElementById('reasonText');
+    const sentimentImg = document.getElementById('sentimentImg');
 
     const sentimentMap = {
-        'positive': { text: '긍정', class: 'badge-positive' },
-        'negative': { text: '부정', class: 'badge-negative' },
-        'neutral': { text: '중립', class: 'badge-neutral' }
+        'positive': { text: '긍정', class: 'badge-positive', img: 'assets/positive.png' },
+        'negative': { text: '부정', class: 'badge-negative', img: 'assets/negative.png' },
+        'neutral': { text: '중립', class: 'badge-neutral', img: 'assets/neutral.png' }
     };
 
     analyzeBtn.addEventListener('click', async () => {
@@ -78,6 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
         confidenceText.textContent = `${data.confidence}%`;
         
         reasonText.textContent = data.reason;
+        
+        sentimentImg.src = sentimentInfo.img;
+        sentimentImg.alt = `${sentimentInfo.text} 감성 이미지`;
         
         resultCard.classList.remove('hidden');
         

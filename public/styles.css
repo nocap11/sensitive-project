@@ -291,4 +291,16 @@ textarea:focus {
         height: 150px;
         font-size: 16px;
     }
+
+    .result-body {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sentiment-visual {
+        order: -1;
+        width: 150px;
+        height: 150px;
+        margin-bottom: 24px;
+    }
 }
