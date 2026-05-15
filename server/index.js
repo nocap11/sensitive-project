@@ -98,9 +98,13 @@ reason은 한국어로 한 문장만 작성한다.
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key_here') {
-    console.error('WARNING: OPENAI_API_KEY is not set or using placeholder.');
-  }
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key_here') {
+      console.error('WARNING: OPENAI_API_KEY is not set or using placeholder.');
+    }
+  });
+}
+
+module.exports = app;
