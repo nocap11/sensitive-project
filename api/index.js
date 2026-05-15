@@ -17,9 +17,16 @@ app.use(express.json());
 // app.use(express.static(path.join(__dirname, '../public')));
 
 // Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openai = null;
+try {
+  if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+} catch (e) {
+  console.error('OpenAI Initialization Error:', e);
+}
 
 // Initialize Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -27,28 +34,33 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let supabase = null;
 
 if (supabaseUrl && supabaseKey && supabaseUrl !== 'your_supabase_url_here') {
-  supabase = createClient(supabaseUrl, supabaseKey);
-} else {
-  console.warn('Supabase credentials missing or invalid. DB logging disabled.');
+  try {
+    supabase = createClient(supabaseUrl, supabaseKey);
+  } catch (e) {
+    console.error('Supabase Initialization Error:', e);
+  }
 }
 
 // API Endpoints
 app.post('/api/analyze', async (req, res) => {
-  const { text } = req.body;
-
-  // Validation
-  if (!text || typeof text !== 'string' || text.trim() === '') {
-    return res.status(400).json({ error: '분석할 텍스트를 입력해주세요.' });
-  }
-
-  if (text.length > 1000) {
-    return res.status(400).json({ error: '텍스트가 너무 깁니다. 1000자 이내로 입력해주세요.' });
-  }
-
   try {
+    const { text } = req.body;
+
+    // Validation
+    if (!text || typeof text !== 'string' || text.trim() === '') {
+      return res.status(400).json({ error: '분석할 텍스트를 입력해주세요.' });
+    }
+
+    if (!openai) {
+      return res.status(500).json({ 
+        error: 'OpenAI API 설정이 완료되지 않았습니다. Vercel 환경 변수를 확인해주세요.',
+        details: 'OPENAI_API_KEY is missing'
+      });
+    }
+
     // OpenAI Sentiment Analysis
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini', // Using a fast and cost-effective model
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
@@ -76,34 +88,44 @@ reason은 한국어로 한 문장만 작성한다.
 
     // Save to Supabase (if available)
     if (supabase) {
-      const { error: dbError } = await supabase.from('sentiment_logs').insert([
-        {
-          input_text: text,
-          sentiment: result.sentiment,
-          confidence: result.confidence,
-          reason: result.reason,
-        },
-      ]);
+      try {
+        const { error: dbError } = await supabase.from('sentiment_logs').insert([
+          {
+            input_text: text,
+            sentiment: result.sentiment,
+            confidence: result.confidence,
+            reason: result.reason,
+          },
+        ]);
 
-      if (dbError) {
-        console.error('Supabase save error:', dbError.message);
+        if (dbError) {
+          console.error('Supabase save error:', dbError.message);
+        }
+      } catch (dbErr) {
+        console.error('Supabase unexpected error:', dbErr);
       }
     }
 
     res.json(result);
   } catch (error) {
-    console.error('Analysis error:', error);
-    res.status(500).json({ error: '분석 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.' });
+    console.error('Analysis error details:', error);
+    res.status(500).json({ 
+      error: '분석 중 문제가 발생했습니다.', 
+      details: error.message 
+    });
   }
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('Global error:', err);
+  res.status(500).json({ error: '서버 내부 오류가 발생했습니다.', details: err.message });
 });
 
 // Start server
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
-    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key_here') {
-      console.error('WARNING: OPENAI_API_KEY is not set or using placeholder.');
-    }
   });
 }
 
