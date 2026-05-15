@@ -67,7 +67,29 @@
                 </div>
             </div>
         </section>
+        <section class="game-section">
+            <div class="container">
+                <div class="game-card">
+                    <div class="game-header">
+                        <h2>EMOJI CATCH</h2>
+                        <div class="game-stats">
+                            <span>Score: <b id="gameScore">0</b></span>
+                            <span>Time: <b id="gameTimer">30</b>s</span>
+                        </div>
+                    </div>
+                    <div class="game-container">
+                        <canvas id="gameCanvas"></canvas>
+                        <div class="game-overlay">
+                            <button id="startGameBtn" class="btn btn-primary">게임 시작</button>
+                        </div>
+                    </div>
+                    <p class="game-desc">긍정 이모지를 받으세요! (+10점) 부정 이모지는 피하세요! (-5점)</p>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <script src="game.js"></script>
 
     <footer class="footer">
         <div class="container">

@@ -302,6 +302,71 @@ textarea:focus {
     font-size: 14px;
 }
 
+/* Game Section */
+.game-section {
+    padding: 40px 0 80px;
+}
+
+.game-card {
+    background-color: var(--panel);
+    padding: 40px;
+    border-radius: 24px;
+    color: var(--white);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.game-stats {
+    display: flex;
+    gap: 24px;
+    font-size: 18px;
+}
+
+.game-container {
+    position: relative;
+    background-color: var(--panel-soft);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: crosshair;
+}
+
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: 400px;
+}
+
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0,0,0,0.5);
+    transition: opacity 0.3s;
+}
+
+.game-overlay:has(button:disabled) {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.game-desc {
+    margin-top: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+}
+
 /* Utilities */
 .hidden {
     display: none;
